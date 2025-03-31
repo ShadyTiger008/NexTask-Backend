@@ -1,4 +1,4 @@
-import Todo from '../models/todo.model.js';
+import Todo from "../models/todo.model.js";
 
 const createTodo = async (data) => {
   const { userId, todoName, todoDescription, reminderAt } = data;
@@ -7,7 +7,7 @@ const createTodo = async (data) => {
     userId,
     todoName,
     todoDescription,
-    reminderAt,
+    reminderAt
   });
 
   return newTodo;
@@ -27,7 +27,7 @@ const updateTodo = async (data) => {
   if (data.isDeleted !== undefined) query.isDeleted = data.isDeleted;
   if (data.isCompleted !== undefined) query.isCompleted = data.isCompleted;
 
-  await Todo.updateOne({ _id: data.id }, { $set: query })
+  await Todo.updateOne({ _id: data.id }, { $set: query });
 
   return await Todo.findById(data.id);
 };
@@ -35,7 +35,7 @@ const updateTodo = async (data) => {
 const getAllTodo = async (filters) => {
   let query = {
     userId: filters.userId,
-    isDeleted: false,
+    isDeleted: false
   };
 
   // Apply filters dynamically
@@ -55,11 +55,11 @@ const getAllTodo = async (filters) => {
           index: "todo_search",
           text: {
             query: filters.search,
-            path: ["todoName", "todoDescription"],
-          },
-        },
+            path: ["todoName", "todoDescription"]
+          }
+        }
       },
-      { $match: query },
+      { $match: query }
     ]);
   } else {
     todos = await Todo.find(query);
