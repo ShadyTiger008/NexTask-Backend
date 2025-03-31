@@ -1,15 +1,31 @@
-const express = require('express');
-const todoController = require('../controllers/todo.controller');
+// Imports
+const express = require("express");
+// End Imports
+
+// Controllers
+const todoController = require("../controllers/todo.controller");
+// End Controllers
+
+// Middlewares
+const authMiddleware = require("../middleware/auth.middleware");
+// End Middlewares
 
 const router = express.Router();
 
-router.get('/getAllTodos/:userId', todoController.getAllTodos);
-router.get('/completedTodList/:userId', todoController.completedTodoList);
-router.get('/inCompleteTodoList/:userId', todoController.inCompleteTodoList);
-router.post('/create/:userId', todoController.addTodo);
-router.post('/delete/:userId', todoController.deleteTodo);
-router.post('/updateName/:userId', todoController.updateTodoName);
-router.post('/updateDescription/:userId', todoController.updateTodoDescription);
-router.post('/updateState/:userId', todoController.updateState);
+router.get("/getAllTodos", authMiddleware.verifyJwt(), todoController.getTodos);
+
+router.post("/create", authMiddleware.verifyJwt(), todoController.addTodo);
+
+router.post(
+  "/delete/:noteId",
+  authMiddleware.verifyJwt(),
+  todoController.dropTodo
+);
+
+router.post(
+  "/updateTodo",
+  authMiddleware.verifyJwt(),
+  todoController.modifyTodo
+);
 
 module.exports = router;

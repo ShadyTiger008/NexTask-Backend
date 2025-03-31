@@ -1,69 +1,42 @@
-const Todo = require("../../models/todo.model");
+const Notification = require("../../models/notification.model");
 
-const createTodo = async (data) => {
-  const { userId, todoName, todoDescription, reminderAt } = data;
+const createNotification = async (data) => {
+  const { userId, type, message, sendAt } = data;
 
-  const newTodo = await Todo.create({
+  const newNotification = await Notification.create({
     userId,
-    todoName,
-    todoDescription,
-    reminderAt,
+    type,
+    message,
+    sendAt
   });
 
-  return newTodo;
+  return newNotification;
 };
 
-const deleteTodo = async (id) => {
-  return await Todo.deleteOne({ _id: id });
+const deleteNotification = async (id) => {
+  return await Notification.deleteOne({ _id: id });
 };
 
-const updateTodo = async (data) => {
+const updateNotification = async (data) => {
   let query = {};
 
-  if (data.todoName) query.todoName = data.todoName;
-  if (data.todoDescription) query.todoDescription = data.todoDescription;
-  if (data.reminderAt) query.reminderAt = data.reminderAt;
-  if (data.status) query.status = data.status;
-  if (data.isDeleted !== undefined) query.isDeleted = data.isDeleted;
-  if (data.isCompleted !== undefined) query.isCompleted = data.isCompleted;
+  if (data.type) query.type = data.type;
+  if (data.message) query.message = data.message;
 
-  return await Todo.updateOne({ _id: data.id }, { $set: query });
+  return await Notification.updateOne({ _id: data.id }, { $set: query });
 };
 
-const getAllTodo = async (filters) => {
-  let query = {
-    userId: filters.userId,
-    isDeleted: false,
-  };
+const getNotification = async (data) => {
+  const notifications = await Notification.find({
+    userId: req.user.id
+  }).sort({ createdAt: -1 });
 
-  // Apply filters dynamically
-  if (filters.isCompleted !== undefined)
-    query.isCompleted = filters.isCompleted;
-  if (filters.isDeleted !== undefined) query.isDeleted = filters.isDeleted;
-  if (filters.status) query.status = filters.status;
-  if (filters.reminderAt)
-    query.reminderAt = { $gte: new Date(filters.reminderAt) };
-
-  // Text Search (if search term is provided)
-  let todos;
-  if (filters.search) {
-    todos = await Todo.aggregate([
-      {
-        $search: {
-          index: "todo_search",
-          text: {
-            query: filters.search,
-            path: ["todoName", "todoDescription"],
-          },
-        },
-      },
-      { $match: query },
-    ]);
-  } else {
-    todos = await Todo.find(query);
-  }
-
-  return todos;
+  return notifications;
 };
 
-module.exports = { createTodo, deleteTodo, updateTodo, getAllTodo };
+module.exports = {
+  createNotification,
+  deleteNotification,
+  updateNotification,
+  getNotification
+};
