@@ -21,7 +21,8 @@ const todoSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Pending", "In-progress", "Closed"]
+      enum: ["Pending", "In-progress", "Closed"],
+      default: "Pending"
     },
     reminderAt: {
       type: Date

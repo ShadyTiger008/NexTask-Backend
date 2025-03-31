@@ -20,7 +20,11 @@ const addTodo = async (req, res) => {
 
 const getTodos = async (req, res) => {
   try {
-    const todos = await todoService.getAllTodo(req.query);
+    const data = {
+      userId: req.user.id,
+      ...req.query,
+    }
+    const todos = await todoService.getAllTodo(data);
 
     res.status(200).json({
       message: "Successfully retrieved all todo lists!",

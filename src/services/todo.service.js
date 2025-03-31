@@ -27,7 +27,9 @@ const updateTodo = async (data) => {
   if (data.isDeleted !== undefined) query.isDeleted = data.isDeleted;
   if (data.isCompleted !== undefined) query.isCompleted = data.isCompleted;
 
-  return await Todo.updateOne({ _id: data.id }, { $set: query });
+  await Todo.updateOne({ _id: data.id }, { $set: query })
+
+  return await Todo.findById(data.id);
 };
 
 const getAllTodo = async (filters) => {

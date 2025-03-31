@@ -6,8 +6,8 @@ import notificationRoutes from "./notification.route.js";
 
 const router = express.Router();
 
-router.post("/user", userRoutes);
-router.post("/todo", todoRoutes);
-router.post("/notification", notificationRoutes);
+router.use("/user", userRoutes);
+router.use("/todo", todoRoutes);
+router.use("/notification", notificationRoutes);
 
 export default router;

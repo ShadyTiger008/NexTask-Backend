@@ -12,12 +12,12 @@ import { verifyJwt } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-router.get("/getAllTodos", verifyJwt, todoController.getTodos);
+router.get("/getAll", verifyJwt, todoController.getTodos);
 
 router.post("/create", verifyJwt, todoController.addTodo);
 
-router.post("/delete/:noteId", verifyJwt, todoController.dropTodo);
+router.delete("/delete/:id", verifyJwt, todoController.dropTodo);
 
-router.post("/updateTodo", verifyJwt, todoController.modifyTodo);
+router.put("/update", verifyJwt, todoController.modifyTodo);
 
 export default router;
