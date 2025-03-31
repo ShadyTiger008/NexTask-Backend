@@ -1,31 +1,23 @@
 // Imports
-const express = require("express");
+import express from "express";
 // End Imports
 
 // Controllers
-const todoController = require("../controllers/todo.controller");
+import todoController from "../controllers/todo.controller.js";
 // End Controllers
 
 // Middlewares
-const authMiddleware = require("../middleware/auth.middleware");
+import { verifyJwt } from "../middleware/auth.middleware.js";
 // End Middlewares
 
 const router = express.Router();
 
-router.get("/getAllTodos", authMiddleware.verifyJwt(), todoController.getTodos);
+router.get("/getAllTodos", verifyJwt, todoController.getTodos);
 
-router.post("/create", authMiddleware.verifyJwt(), todoController.addTodo);
+router.post("/create", verifyJwt, todoController.addTodo);
 
-router.post(
-  "/delete/:noteId",
-  authMiddleware.verifyJwt(),
-  todoController.dropTodo
-);
+router.post("/delete/:noteId", verifyJwt, todoController.dropTodo);
 
-router.post(
-  "/updateTodo",
-  authMiddleware.verifyJwt(),
-  todoController.modifyTodo
-);
+router.post("/updateTodo", verifyJwt, todoController.modifyTodo);
 
-module.exports = router;
+export default router;

@@ -1,5 +1,5 @@
 // Models
-const User = require("../../models/user.model");
+import User from "../models/user.model.js";
 // End Models
 
 const findUser = async (data) => {
@@ -10,4 +10,4 @@ const findUser = async (data) => {
   return user;
 };
 
-module.exports = { findUser };
+export default { findUser };

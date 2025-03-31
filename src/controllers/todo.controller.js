@@ -1,5 +1,4 @@
-const { ObjectId } = require("mongoose").Types;
-const todoService = require("../services/todo.service");
+import todoService from "../services/todo.service.js";
 
 const addTodo = async (req, res) => {
   try {
@@ -64,7 +63,7 @@ const modifyTodo = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   addTodo,
   getTodos,
   dropTodo,

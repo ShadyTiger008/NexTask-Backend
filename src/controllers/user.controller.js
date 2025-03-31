@@ -1,5 +1,5 @@
 // Services
-const userService = require("../services/user.service");
+import userService from "../services/user.service.js";
 // End Services
 
 const getUser = async (req, res) => {
@@ -17,6 +17,6 @@ const getUser = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   getUser
 };

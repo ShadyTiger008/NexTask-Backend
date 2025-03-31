@@ -1,4 +1,4 @@
-const Todo = require("../models/todo.model");
+import Todo from '../models/todo.model.js';
 
 const createTodo = async (data) => {
   const { userId, todoName, todoDescription, reminderAt } = data;
@@ -66,4 +66,4 @@ const getAllTodo = async (filters) => {
   return todos;
 };
 
-module.exports = { createTodo, deleteTodo, updateTodo, getAllTodo };
+export default { createTodo, deleteTodo, updateTodo, getAllTodo };

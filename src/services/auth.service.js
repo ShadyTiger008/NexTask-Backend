@@ -1,6 +1,6 @@
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const User = require("../models/user");
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import User from "../models/user.model.js";
 
 const createUser = async (data) => {
   const { fullName, userName, email, password, picturePath, occupation } = data;
@@ -49,4 +49,4 @@ const loginUser = async (data) => {
   return { token, user };
 };
 
-module.exports = { createUser, loginUser };
+export default { createUser, loginUser };

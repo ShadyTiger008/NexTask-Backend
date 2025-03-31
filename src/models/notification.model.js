@@ -1,34 +1,33 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const notificationSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: true
     },
     type: {
       type: String,
       enum: ["in-app", "push", "email", "reminder"],
-      required: true,
+      required: true
     },
     message: {
       type: String,
-      required: true,
+      required: true
     },
     status: {
       type: String,
       enum: ["Pending", "Sent", "Read"],
-      default: "Pending",
+      default: "Pending"
     },
     sendAt: {
       type: Date,
-      required: true,
-    },
+      required: true
+    }
   },
   { timestamps: true }
 );
 
-module.exports =
-  mongoose.models.Notification ||
+export default mongoose.models.Notification ||
   mongoose.model("Notification", notificationSchema);
