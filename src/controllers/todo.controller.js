@@ -28,7 +28,7 @@ const getTodos = async (req, res) => {
 
     res.status(200).json({
       message: "Successfully retrieved all todo lists!",
-      todos,
+      document: todos
     });
   } catch (error) {
     res.status(500).json({
