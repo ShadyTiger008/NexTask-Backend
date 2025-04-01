@@ -5,23 +5,24 @@ import sendEmail from "../utils/mailer.util.js";
 import sendPushNotification from "../utils/push-notification.util.js";
 
 const scheduleNotification = async () => {
+  // Run every minute
   cron.schedule("* * * * *", async () => {
     console.log("------------------ Scheduler is running ------------------");
 
-    const nowIST = new Date(); // Current IST time
-    console.log("Current Time (IST):", nowIST.toISOString());
+    const now = new Date();
+    console.log("Current Time:", now.toISOString());
 
-    // Convert to UTC for DB query (MongoDB stores timestamps in UTC)
-    const nowUTC = new Date(nowIST.getTime() - 5.5 * 60 * 60 * 1000);
-    const startRange = new Date(nowUTC.getTime() - 30000); // 30 sec before
-    const endRange = new Date(nowUTC.getTime() + 30000); // 30 sec after
+    // Create a 1-minute window (30 seconds before and after current time)
+    const startRange = new Date(now.getTime() - 30000); // 30 sec before
+    const endRange = new Date(now.getTime() + 30000); // 30 sec after
 
     console.log(
       `Querying tasks between ${startRange.toISOString()} and ${endRange.toISOString()}`
     );
 
+    // Query todos with reminderAt within the time window
     const todos = await Todo.find({
-      reminderAt: { $gte: startRange, $lte: endRange }, // Match exact time range
+      reminderAt: { $gte: startRange, $lte: endRange },
       isCompleted: false,
       isDeleted: false
     }).populate("userId", "email pushSubscription");
@@ -34,31 +35,35 @@ const scheduleNotification = async () => {
     for (const todo of todos) {
       console.log(`Sending reminder for: ${todo.todoName}`);
 
-      // Send email reminder
-      await sendEmail(
-        todo.userId.email,
-        "Reminder: " + todo.todoName,
-        `Don't forget: ${todo.todoDescription}`
-      );
+      try {
+        // Send email reminder
+        await sendEmail(
+          todo.userId.email,
+          "Reminder: " + todo.todoName,
+          `Don't forget: ${todo.todoDescription}`
+        );
 
-      // Send push notification
-      if (todo.userId.pushSubscription) {
-        await sendPushNotification(todo.userId.pushSubscription, {
-          title: "Reminder",
-          body: todo.todoName
+        // Send push notification if subscription exists
+        if (todo.userId.pushSubscription) {
+          await sendPushNotification(todo.userId.pushSubscription, {
+            title: "Reminder",
+            body: todo.todoName
+          });
+        }
+
+        // Store the notification in DB
+        await Notification.create({
+          userId: todo.userId._id,
+          type: "reminder",
+          message: `Reminder for: ${todo.todoName}`,
+          status: "Sent",
+          sendAt: now
         });
+
+        console.log(`Reminder sent successfully for: ${todo.todoName}`);
+      } catch (error) {
+        console.error(`Failed to send reminder for ${todo.todoName}:`, error);
       }
-
-      // Store the notification in DB
-      await Notification.create({
-        userId: todo.userId._id,
-        type: "reminder",
-        message: `Reminder for: ${todo.todoName}`,
-        status: "Sent",
-        sendAt: nowUTC
-      });
-
-      console.log(`Reminder sent successfully for: ${todo.todoName}`);
     }
   });
 };
