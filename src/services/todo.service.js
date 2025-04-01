@@ -4,7 +4,7 @@ const createTodo = async (data) => {
   const { userId, todoName, todoDescription, reminderAt } = data;
 
   const newTodo = await Todo.create({
-    userId,
+    user: userId,
     todoName,
     todoDescription,
     reminderAt
@@ -42,7 +42,7 @@ const getAllTodo = async (filters) => {
   sortBy[sort] = sortOrder;
 
   let query = {
-    userId: filters.userId,
+    user: filters.userId,
     isDeleted: false
   };
 
@@ -96,9 +96,10 @@ const getAllTodo = async (filters) => {
 
   return {
     data: todos,
-    total: totalCount,
-    totalPages: Math.ceil(totalCount / limit),
-    currentPage: page
+    limit: limit,
+    totalCount: totalCount,
+    currentPage: page,
+    totalPages: Math.ceil(totalCount / limit)
   };
 };
 

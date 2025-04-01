@@ -25,7 +25,7 @@ const scheduleNotification = async () => {
       reminderAt: { $gte: startRange, $lte: endRange },
       isCompleted: false,
       isDeleted: false
-    }).populate("userId", "email pushSubscription");
+    }).populate("user", "email pushSubscription");
 
     if (todos.length === 0) {
       console.log("No tasks found for this time slot.");
@@ -38,14 +38,14 @@ const scheduleNotification = async () => {
       try {
         // Send email reminder
         await sendEmail(
-          todo.userId.email,
+          todo.user.email,
           "Reminder: " + todo.todoName,
           `Don't forget: ${todo.todoDescription}`
         );
 
         // Send push notification if subscription exists
-        if (todo.userId.pushSubscription) {
-          await sendPushNotification(todo.userId.pushSubscription, {
+        if (todo.user.pushSubscription) {
+          await sendPushNotification(todo.user.pushSubscription, {
             title: "Reminder",
             body: todo.todoName
           });
@@ -53,7 +53,7 @@ const scheduleNotification = async () => {
 
         // Store the notification in DB
         await Notification.create({
-          userId: todo.userId._id,
+          user: todo.user._id,
           type: "reminder",
           message: `Reminder for: ${todo.todoName}`,
           status: "Sent",
@@ -72,25 +72,39 @@ const getAllNotifications = async (filters) => {
   const page = parseInt(filters.page) || 1;
   const limit = parseInt(filters.limit) || 10;
   const skip = (page - 1) * limit;
+
+  // Get the sort field or default to createdAt
   const sort = filters.sort || "createdAt";
   const sortOrder = filters.sortOrder === "desc" ? -1 : 1;
   const sortBy = {};
   sortBy[sort] = sortOrder;
 
+  // Base query
   let query = {
     isDeleted: false
   };
 
-  const result = await Notification.find(query)
-    .populate("userId", "email")
-    .sort({ createdAt: -1 })
-    .limit(parseInt(filters.limit) || 10)
-    .skip(parseInt(filters.page) || 0);
+  // Filter by userId if provided
+  if (filters.userId) {
+    query.userId = filters.userId;
+  }
 
-  const totalCount = await Notification.countDocuments();
+  // Get paginated notifications with proper sorting
+  const result = await Notification.find(query)
+    .populate("user", "email")
+    .sort(sortBy)
+    .limit(limit)
+    .skip(skip);
+
+  // Get total count for pagination
+  const totalCount = await Notification.countDocuments(query);
+
   return {
     data: result,
-    totalCount: totalCount
+    limit: limit,
+    totalCount: totalCount,
+    currentPage: page,
+    totalPages: Math.ceil(totalCount / limit)
   };
 };
 
