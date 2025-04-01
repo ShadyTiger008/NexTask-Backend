@@ -24,6 +24,17 @@ const notificationSchema = new mongoose.Schema(
     sendAt: {
       type: Date,
       required: true
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false
+    },
+    isRead: {
+      type: Boolean,
+      default: false
+    },
+    readAt: {
+      type: Date
     }
   },
   { timestamps: true }

@@ -1,13 +1,13 @@
 import dotenv from "dotenv";
 import connectDb from "./db/index.js";
 import { app } from "./app.js";
-import { scheduleNotification } from "./services/notification.service.js";
+import notificationService from "./services/notification.service.js";
 
 dotenv.config({
   path: "./.env"
 });
 
-scheduleNotification();
+notificationService.scheduleNotification();
 
 connectDb()
   .then(() => {

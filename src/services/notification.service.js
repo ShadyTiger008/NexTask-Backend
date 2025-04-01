@@ -68,4 +68,30 @@ const scheduleNotification = async () => {
   });
 };
 
-export { scheduleNotification };
+const getAllNotifications = async (filters) => {
+  const page = parseInt(filters.page) || 1;
+  const limit = parseInt(filters.limit) || 10;
+  const skip = (page - 1) * limit;
+  const sort = filters.sort || "createdAt";
+  const sortOrder = filters.sortOrder === "desc" ? -1 : 1;
+  const sortBy = {};
+  sortBy[sort] = sortOrder;
+
+  let query = {
+    isDeleted: false
+  };
+
+  const result = await Notification.find(query)
+    .populate("userId", "email")
+    .sort({ createdAt: -1 })
+    .limit(parseInt(filters.limit) || 10)
+    .skip(parseInt(filters.page) || 0);
+
+  const totalCount = await Notification.countDocuments();
+  return {
+    data: result,
+    totalCount: totalCount
+  };
+};
+
+export default { scheduleNotification, getAllNotifications };
