@@ -23,16 +23,46 @@ const deleteNote = async (id) => {
 const updateNote = async (data) => {
   let query = {};
 
-  if (data.todoName) query.todoName = data.todoName;
-  if (data.todoDescription) query.todoDescription = data.todoDescription;
-  if (data.reminderAt) query.reminderAt = data.reminderAt;
-  if (data.status) query.status = data.status;
+  if (data.title) query.title = data.title;
+  if (data.content) query.content = data.content;
+  if (data.color) query.color = data.color;
+  if (data.attachment) query.attachment = data.attachment;
+  if (data.category) query.category = data.category;
+  if (data.tags && data.tags.length !== 0) query.tags = data.tags;
   if (data.isDeleted !== undefined) query.isDeleted = data.isDeleted;
-  if (data.isCompleted !== undefined) query.isCompleted = data.isCompleted;
+  if (data.isPinned !== undefined) query.isPinned = data.isPinned;
+  if (data.isArchived !== undefined) query.isArchived = data.isArchived;
 
-  await Note.updateOne({ _id: data.id }, { $set: query });
+  if (Object.keys(query).length === 0) {
+    throw new Error("No fields to update");
+  }
 
-  return await Note.findById(data.id);
+  query.lastModifiedBy = data.userId;
+
+  const existedNote = await Note.findById(data.id);
+  if (!existedNote) {
+    throw new Error("Note not found");
+  }
+
+  if (data.isPinned !== undefined) {
+    const pinnedNotes = await Note.find({
+      user: data.userId,
+      isPinned: true
+    });
+    if (pinnedNotes.length >= 5) {
+      throw new Error("You can only pin up to 5 notes.");
+    }
+  }
+
+  const result = await Note.updateOne({ _id: data.id }, { $set: query });
+
+  if (result.modifiedCount === 0) {
+    throw new Error("Note not found or nothing was updated.");
+  }
+
+  const updatedNote = await Note.findOne({ _id: data.id });
+
+  return updatedNote;
 };
 
 const getAllNote = async (filters) => {
@@ -46,7 +76,8 @@ const getAllNote = async (filters) => {
 
   let query = {
     user: filters.userId,
-    isDeleted: false
+    isDeleted: false,
+    isArchived: false
   };
 
   // Apply filters dynamically
@@ -106,4 +137,29 @@ const getAllNote = async (filters) => {
   };
 };
 
-export default { createNote, deleteNote, updateNote, getAllNote };
+const getNoteById = async (filters) => {
+ const note = await Note.aggregate([
+    {
+      $match: {
+        _id: filters.noteId,
+        user: filters.userId,
+        isDeleted: false
+      }
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "user",
+        foreignField: "_id",
+        as: "user"
+      }
+    },
+    {
+      $unwind: "$user"
+    }
+  ]);
+
+  return note
+};
+
+export default { createNote, deleteNote, updateNote, getAllNote, getNoteById };

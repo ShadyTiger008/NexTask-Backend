@@ -18,6 +18,8 @@ router.post("/add", verifyJwt, noteController.addNote);
 
 router.put("/update", verifyJwt, noteController.modifyNote);
 
-router.delete("/delete", verifyJwt, noteController.dropNote);
+router.delete("/delete/:noteId", verifyJwt, noteController.dropNote);
+
+router.get("/get/:noteId", verifyJwt, noteController.getNoteById);
 
 export default router;

@@ -55,7 +55,11 @@ const noteSchema = new mongoose.Schema(
           default: "view"
         }
       }
-    ]
+    ],
+    lastModifiedBy: {
+      type: mongoose.Types.ObjectId,
+      ref: "User"
+    }
   },
   { timestamps: true }
 );
